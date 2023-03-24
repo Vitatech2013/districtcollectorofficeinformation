@@ -1,0 +1,177 @@
+<html>
+<title>add employee</title>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <style>
+        .form-control {
+            border: 2px solid black;
+        }
+    </style>
+    <script>
+
+let EmployeeReg=[];
+
+const EmployeeName = sessionStorage.getItem('username');
+console.log(EmployeeName);
+        const userid=sessionStorage.getItem("userid")
+        function performAjax(httpMethod, url, params) {
+            const myPromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(this.responseText);
+
+                    }
+                    if (this.status == 500) {
+                        reject({ error: true, message: "ServerError" });
+                    }
+                    if (this.status == 404) {
+                        reject({ error: true, message: "Resource not found" });
+                    }
+                };
+                xhttp.open(httpMethod, url, true);
+                xhttp.setRequestHeader("Content-Type", "application/json");
+                params ? xhttp.send(params) : xhttp.send();
+            });
+            return myPromise;
+        }
+
+        function Profile() {
+        document.getElementById("ename").value = EmployeeName;
+            const getUsersPromise = performAjax("GET", `http://localhost:4000/Employee/empviewprofile?EmployeeName=${EmployeeName}`);
+            getUsersPromise
+                .then((data) => {
+                    const details = JSON.parse(data);
+
+                    details.map(rec => {
+                        rec.Gender === "Male" ? document.getElementById("male").checked = true : document.getElementById("female").checked = true;
+                        document.getElementById("dob").value = rec.Dob;
+                        document.getElementById("emailid").value = rec.Emailid;
+                        document.getElementById("phoneno").value = rec.Phoneno;
+                        document.getElementById("quali").value = rec.Qualification;
+                        document.getElementById("district").value = rec.District;
+                        document.getElementById("mandal").value = rec.Mandal;
+                        document.getElementById("village").value = rec.City;
+
+                    });
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+        function Update() {
+            const EmployeeName = document.getElementById("ename").value;
+          
+            const Gender = document.getElementById("male").checked ? "Male" : "Female";
+            const Dob = document.getElementById("dob").value;
+            const Emailid = document.getElementById("emailid").value;
+            const Phoneno = document.getElementById("phoneno").value;
+            const Qualification = document.getElementById("quali").value;
+            const District = document.getElementById("district").value;
+            const Mandal = document.getElementById("mandal").value;
+            const City = document.getElementById("village").value;
+         
+        
+                const getUpdatePromise = performAjax(
+                    "PUT",
+                    `http://localhost:4000/Employee/empupdateprofile/${userid}`,
+                    JSON.stringify({ EmployeeName, Phoneno, Emailid, Gender, Qualification, Dob, District, Mandal, City })
+                );
+                getUpdatePromise
+                .then((updatePromise) => {
+                    alert('Details Updated');
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+            }
+    </script>
+    <br><br>
+
+<body onload="Profile()">
+    <form onsubmit="Update()">
+    <div class="row">
+        <div class="col-md-5"></div>
+        <div class="col-md-2"><label style="color:red"><u>ADD EMPLOYEE</u></label></div>
+        <div class="col-md-5"></div>
+    </div><br><br>
+
+    <div class="row">
+        <div class="col-md-3">
+            <input type="hidden"  class="form-control" name="id" id="id">
+        </div>
+        <div class="col-md-2"><label for="">User name</label><input type="text" disabled="false" class="form-control" name="name"
+                id="ename" placeholder="enter user name" required></div>
+                <div class="col-md-2"><label>Qualification:</label><select class="form-control" id="quali" required>
+                        <option value="">--select--</option>
+                        <option value="MSC">MSC</option>
+                        <option value="MCA">MCA</option>
+                        <option value="MBA">MBA</option>
+                    </select></div>
+                <div class="col-md-2"><label>Date of Birth:</label><br><input type="date" name="day" class="form-control"
+                        id="dob" required></div>
+        <div class="col-md-3"></div>
+    </div><br><br>
+
+    <div class="row">
+        <div class="col-md-3"></div>
+       
+        <div class="col-md-2"><label for="">Email id</label><input type="email" id="emailid" class="form-control" name="email id"
+                placeholder="enter email id"  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required></div>
+                <div class="col-md-2"><label for="">Gender:</label><br><input type="radio" name="gender" id="female"
+                    checked="true">Female
+                <input type="radio" name="gender" id="male" >Male</div>
+            <div class="col-md-2"><label for="">Phone number</label><input type="text" class="form-control" id="phoneno" maxlength="10" pattern="[6-9]{1}[0-9]{9}" required></div>
+        <div class="col-md-3"></div>
+    </div><br><br>
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-2"><label>District:</label><select class="form-control" id="district" required>
+                <option value="">--select--</option>
+                <option value="Mancherial">Mancherial</option>
+                <option value="Karimnagar">Karimnagar</option>
+                <option value="warangal">peddapelli</option>
+                <option value="warangal">warangal</option>
+
+            </select></div>
+
+        <div class="col-md-2"><label>Mandal:</label><select class="form-control" id="mandal" required>
+
+                <option value="">--select--</option>
+                <option value="Naspur">Naspur</option>
+                <option value="manakondoor">manakondoor</option>
+                <option value="choppadandi">choppadandi</option>
+                <option value="odela">odela</option>
+
+
+            </select></div>
+        <div class="col-md-2"><label>Town/Village:</label><select class="form-control" id="village" required >
+                <option value="">-------select------</option>
+                <option value="smp">smp</option>
+                <option value="gangipelli">gangipelli</option>
+                <option value="rangapet">rangapet</option>
+                <option value="odela">odela</option>
+                <option value="vedurugatta">vedurugatta</option>
+            </select></div>
+        <div class="col-md-3"></div>
+    </div><br><br>
+    
+
+    <div class="row">
+        <div class="col-md-5"></div>
+        <div class="col-md-2"><button type="submit"  id="submit" class="btn btn-success">Update</button>
+        </div>
+        <div class="col-md-5"></div>
+    </div><br><br>
+</form>
+    </head>
+</body>
+
+</html>

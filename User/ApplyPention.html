@@ -1,0 +1,189 @@
+<html>
+<title>pension certificate</title>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+<style>
+    .form-control {
+        border: 2px solid black;
+    }
+</style>
+<script>
+    let pentioncertificates=[];
+    const UserName = sessionStorage.getItem("username");
+    const Emailid = sessionStorage.getItem("email");
+        function getUserName() {
+            document.getElementById("cname").value = UserName;
+        }    
+    function performAjax(httpMethod, url, params) {
+                const myPromise = new Promise((resolve, reject) => {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            resolve(JSON.parse(this.responseText));
+    
+                        }
+                        if (this.status == 500) {
+                            reject({ error: true, message: "ServerError" });
+                        }
+                        if (this.status == 404) {
+                            reject({ error: true, message: "Resource not found" });
+                        }
+                    };
+                    xhttp.open(httpMethod, url, true);
+                    xhttp.setRequestHeader("Content-Type", "application/json");
+                    params ? xhttp.send(params) : xhttp.send();
+                });
+                return myPromise;
+            }
+    
+       function applypention(){
+           event.preventDefault();
+                const UserName = document.getElementById("cname").value;
+                const Sonofdaughter = document.getElementById("S/O").checked ? "S/O" : "D/O";
+                const AadherNumber = document.getElementById("aadhernumber").value
+                const MobileNumber = document.getElementById("mno").value 
+                const SonOfDaughterName = document.getElementById("sdname").value;
+                const Age = document.getElementById("age").value;
+                const Children = document.getElementById("cdns").value;
+                const District = document.getElementById("district").value;
+                const Mandal = document.getElementById("mandal").value;
+                const City = document.getElementById("village").value;
+                const HouseNo = document.getElementById("hno").value;
+                const Pincode = document.getElementById("pincode").value;
+                const Aadharcard = document.getElementById("file").files;
+             
+    
+             if (Aadharcard.length > 0) {
+            var fileToLoad = Aadharcard[0];
+            var fileReader = new FileReader();
+            fileReader.onload = function(fileLoadedEvent) {
+               
+                const filepath = fileLoadedEvent.target.result;
+               
+                const getSendFilePromise = performAjax(
+              "POST",
+              "http://localhost:4000/User/pention",
+              JSON.stringify({ApplicationNo:'Pending',UserName,Emailid,MobileNumber,Sonofdaughter,SonOfDaughterName,Age,Children,District,Mandal,City,HouseNo,Pincode ,AadherNumber, Aadharcard:filepath,status:'Pending' })
+    
+            );
+            ;
+            getSendFilePromise
+                .then((sendFilePromise) => {
+                    alert(' Successfully  Apply Pention');
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+            }
+            fileReader.readAsDataURL(fileToLoad);
+      }
+          }
+        
+    </script>
+
+
+
+<body onload="getUserName()">
+    <form onsubmit="applypention()">
+    <div class="row">
+        <div class="col-md-4"></div>        
+        <div class="col-md-3"><label style="color:red"><u>PENSION CERTIFICATE</u></label></div>
+        <div class="col-md-4"></div>        
+    </div><br><br>
+    <div class="row">
+        <div class="col-md-1"></div><input type="hidden" name="id" class="form-control" id="id"
+            >
+        <div class="col-md-3"><label>Citizen name</label><br>
+            <input type="text" name="cname" disabled="false" class="form-control" id="cname"
+                placeholder="enter citizen name" required>
+        </div>
+        <div class="col-md-3"><label>MobileNo:</label><br>
+            <input type="text" name="mno" class="form-control" id="mno" maxlength="10" pattern="[6-9]{1}[0-9]{9}" required></div>
+        <div class="col-md-3"><label>S/O(or)D/O:</label><br>
+        <input type="radio" name="gender" id="S/O" checked="true">S/O
+            <input type="radio" name="gender" id="D/O" >D/O
+        </div>
+        <div class="col-md-1"></div>
+    </div><br>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-3"><label>S/O(or)D/OName:</label>
+            <br><input type="text" name="sdname" class="form-control" id="sdname"
+                placeholder="enter  name" required>
+        </div>
+        <div class="col-md-3"><label>No.of Children's:</label><br>
+            <input type="number" name="cdns" class="form-control" id="cdns" required></div> 
+            <div class="col-md-3"><label>No.of Children's:</label><input type="number" name="cdns" class="form-control" id="cdns" required></div>
+  
+ 
+        <div class="col-md-1"></div>
+       
+        
+    </div><br>
+    
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-3"><label>Age:</label><br>
+            <input type="number" name="age" class="form-control" id="age" required></div>
+       
+        <div class="col-md-3"><label>House no:</label><br>
+            <input type="text" name="hno" class="form-control" id="hno" required></div>
+            <div class="col-md-3"><label>District:</label>
+            <select class="form-control" id="district" required>
+                <option value="Mancherial">Mancherial</option>
+                <option value="Karimnagar">Karimnagar</option>
+                <option value="warangal">peddapelli</option>
+                <option value="warangal">warangal</option>
+            </select>
+        </div>
+           
+                <div class="col-md-1"></div>
+    </div>
+    
+
+   <br>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-3"><label>Mandal:</label>
+            <select class="form-control" id="mandal" required>
+                <option value="">--select--</option>
+                <option value="Naspur">Naspur</option>
+                <option value="manakondoor">manakondoor</option>
+                <option value="choppadandi">choppadandi</option>
+                <option value="odela">odela</option>
+            </select></div>
+        
+        <div class="col-md-3"><label>city/village:</label><select class="form-control" id="village" required>
+                <option value="">--select--</option>
+                <option value="smp">smp</option>
+                <option value="select">gangipelli</option>
+                <option value="select">rangapet</option>
+                <option value="select">odela</option>
+                <option value="select">vedurugatta</option>
+            </select></div>
+            <div class="col-md-3"><label>Pincode:</label><input type="text" name="pincode" class="form-control" id="pincode" required></div>
+       
+          <div class="col-md-1"></div>
+        </div><br>
+        
+    
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-3"><label>AadherNumber:</label><input type="text" name="aadherno" class="form-control" id="aadhernumber" required></div>
+        <div class="col-md-3"><label>Job/aadhar card:</label><input type="file" name="file" id="file" required></div>
+        <div class="col-md-3 text-center" ><button type="submit" class="btn btn-success"  id="submit">Submit</button></div>
+        <div class="col-md-1"></div>
+        
+    </div><br>
+  </form>
+</head>
+</body>
+
+</html>

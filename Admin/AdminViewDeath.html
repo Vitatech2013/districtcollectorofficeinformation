@@ -1,0 +1,118 @@
+<html>
+<title> </title>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <style>
+        .form-control {
+            border: 2px solid black;
+        }
+
+        .tablecss {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .tablecss td,
+        .tablecss th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .tablecss tr:nth-child(odd) {
+            background-color: #f2f2f2;
+        }
+
+        .tablecss tr:hover {
+            background-color: #ddd;
+        }
+
+        .tablecss th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: center;
+            background-color: lavender;
+            color: black;
+            font-weight: bold;
+
+        }
+    </style>
+    <script>
+
+        function performAjax(httpMethod, url, params) {
+            const myPromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(JSON.parse(this.responseText));
+
+                    }
+                    if (this.status == 500) {
+                        reject({ error: true, message: "ServerError" });
+                    }
+                    if (this.status == 404) {
+                        reject({ error: true, message: "Resource not found" });
+                    }
+                };
+                xhttp.open(httpMethod, url, true);
+                xhttp.setRequestHeader("Content-Type", "application/json");
+                params ? xhttp.send(params) : xhttp.send();
+            });
+            return myPromise;
+        }
+        function LoadData() {
+            event.preventDefault();
+            const getdata1 = performAjax("GET", "http://localhost:4000/Admin/deathview");
+            getdata1
+                .then((details) => {
+
+                    ViewDeath(details);
+
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+
+
+
+        function ViewDeath(records) {
+
+
+            let tableHeader = `<tr><th>SNo</th><th>UserName</th><th>Mno</th><th>S/D</th><th>Fname</th><th>DOB</th><th>Place of death</th><th>District</th><th>Mandal</th><th>City</th><th>HouseNo</th><th>Pincode</th><th>AadharNo</th><th>document</th><th>Status</th></tr>`;
+
+            if (records.length > 0) {
+                let tableRow = records.map((details, index) => {
+
+                    return `<tr><td>${index + 1}</td><td>${details.UserName}</td><td>${details.MobileNumber}</td> <td>${details.Sonofdaughter}</td><td>${details.SonOfDaughterName}</td> <td>${details.Dob}</td><td>${details.PlaceDob}</td>  
+                   <td>${details.District}</td> <td>${details.Mandal}</td> <td>${details.City}</td> <td>${details.HouseNo}</td> <td>${details.Pincode}</td><td>${details.AadherNumber}</td> <td><img height="80" width="100" src='${details.Jobcard}'/></td><td>${details.status}</td></tr>`;
+                });
+                document.getElementById("viewtable").innerHTML = `<table  class="scripted table" border="2">${tableHeader}${tableRow.join('')}</table>`;
+            }
+            else {
+                tableRow = `<tr><td colspan="18" align="center">No Data Found</td></tr>`;
+                document.getElementById("viewtable").innerHTML = `${tableHeader}${tableRow}`;
+            }
+        }
+
+
+    </script>
+
+<body onload="LoadData()">
+    <center>
+        <h1>death certificate</h1>
+        <table id=viewtable border="1" class="tablecss" style="width: 1000px;"></table>
+    </center>
+    <br>
+    <br>
+    </head>
+</body>
+
+</html>
